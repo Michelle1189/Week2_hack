@@ -39,9 +39,27 @@ export function UnreadReports({ reportData }) {
                 </TableCell>
                 <TableCell>
                   {report.Changed_Since_Last_Week === "No change" ? (
-                    <Badge variant="outline">No change</Badge>
+                    <Badge className="bg-green-100 text-green-800 hover:bg-green-200 border-green-200">No change</Badge>
+                  ) : report.Changed_Since_Last_Week === "Major revision" ? (
+                    <Badge className="bg-red-100 text-red-800 hover:bg-red-200 border-red-200">
+                      {report.Changed_Since_Last_Week}
+                    </Badge>
+                  ) : report.Changed_Since_Last_Week === "Updated" ? (
+                    <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200">
+                      {report.Changed_Since_Last_Week}
+                    </Badge>
+                  ) : report.Changed_Since_Last_Week === "Reworded" ? (
+                    <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200 border-amber-200">
+                      {report.Changed_Since_Last_Week}
+                    </Badge>
+                  ) : report.Changed_Since_Last_Week === "New report" ? (
+                    <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200 border-purple-200">
+                      {report.Changed_Since_Last_Week}
+                    </Badge>
                   ) : (
-                    <Badge variant="secondary">{report.Changed_Since_Last_Week}</Badge>
+                    <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200 border-gray-200">
+                      {report.Changed_Since_Last_Week}
+                    </Badge>
                   )}
                 </TableCell>
               </TableRow>
