@@ -10,8 +10,8 @@ export function ReportMetrics({ metrics }) {
   }))
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <Card className="col-span-1 md:col-span-2">
+    <div className="grid gap-4">
+      <Card>
         <CardHeader>
           <CardTitle>Unread Reports by Section</CardTitle>
           <CardDescription>Sections requiring immediate leadership attention</CardDescription>

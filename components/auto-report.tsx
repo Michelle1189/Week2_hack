@@ -10,6 +10,7 @@ import { fetchReportData } from "@/lib/data-service"
 import { ReportMetrics } from "@/components/report-metrics"
 import { UnreadReports } from "@/components/unread-reports"
 import { ReportInsights } from "@/components/report-insights"
+import { UploadReportForm } from "@/components/upload-report-form"
 
 export function AutoReport() {
   const [loading, setLoading] = useState(true)
@@ -76,15 +77,68 @@ export function AutoReport() {
     loadData()
   }, [])
 
+  const handleUploadReport = (newReport) => {
+    // Add the new report to the existing data
+    const updatedReportData = [newReport, ...reportData]
+    setReportData(updatedReportData)
+
+    // Recalculate metrics
+    const totalReports = updatedReportData.length
+    const unreadReports = updatedReportData.filter((r) => r.Leadership_Viewed === "No").length
+    const readRate = ((totalReports - unreadReports) / totalReports) * 100
+
+    // Get sections with most unread reports
+    const sectionCounts = updatedReportData.reduce((acc, report) => {
+      if (report.Leadership_Viewed === "No") {
+        acc[report.Section] = (acc[report.Section] || 0) + 1
+      }
+      return acc
+    }, {})
+
+    const topUnreadSections = Object.entries(sectionCounts)
+      .sort((a, b) => (b[1] as number) - (a[1] as number))
+      .slice(0, 3)
+      .map(([section, count]) => ({ section, count }))
+
+    // Get recent changes
+    const recentChanges = updatedReportData.filter((r) => r.Changed_Since_Last_Week !== "No change").slice(0, 5)
+
+    // Calculate trend (simple version)
+    const lastWeekData = updatedReportData.filter((r) => {
+      const reportDate = new Date(r.Report_Date)
+      const oneWeekAgo = new Date()
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+      return reportDate >= oneWeekAgo
+    })
+
+    const lastWeekUnread = lastWeekData.filter((r) => r.Leadership_Viewed === "No").length
+    const lastWeekReadRate =
+      lastWeekData.length > 0 ? ((lastWeekData.length - lastWeekUnread) / lastWeekData.length) * 100 : 0
+
+    const trend = readRate > lastWeekReadRate ? "up" : "down"
+
+    setMetrics({
+      totalReports,
+      unreadReports,
+      readRate,
+      topUnreadSections,
+      recentChanges,
+      trend,
+    })
+  }
+
   if (loading) {
     return <LoadingSkeleton />
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Executive Report Summary</h1>
-        <p className="text-muted-foreground">One-minute overview of key signals from team reports</p>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Executive Report Summary</h1>
+          <p className="text-muted-foreground">One-minute overview of key signals from team reports</p>
+        </div>
+        <UploadReportForm onUploadReport={handleUploadReport} />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
